@@ -3,91 +3,118 @@ const showButton = document.querySelector("dialog + button");
 const closeButton = document.querySelector("dialog button");
 const form = document.querySelector("#add-book-form");
 
+let removeBookBtn;
+let newBook;
+
 let libraryDiv;
 let book;
 
-
-let bookLabel;
-let bookAuthor;
-let numPages;
-let read;
-
-
 const myLibrary = [];
 
-
-// constructor
-function createBook(title, author, pages, read){
+// Constructor function
+function Book(title, author, pages, read) {
     this.title = title;
     this.author = author;
     this.pages = pages;
     this.read = read;
-};
+}
 
 
-// adds book to library
+
+// Adds book to library
 function addBookToLibrary() {
-    const Book = new createBook(bookLabel, bookAuthor, pages, read);
-    myLibrary.push(Book);
-    // libraryDiv.removeChild(book);
-    displayBook();
-};
+    const title = document.getElementById("book-label").value;
+    const author = document.getElementById("book-author").value;
+    const pages = Number(document.getElementById("number-of-pages").value);
+    const read = document.getElementById("read").value;
+
+    newBook = new Book(title, author, pages, read);
+    myLibrary.push(newBook);
+    displayBook(newBook);
+}
+
+
 
 showButton.addEventListener("click", () => {
     dialog.showModal();
 });
 
-closeButton.addEventListener("click", (event)=>{
-    bookLabel = document.getElementById("book-label").value;
-    bookAuthor = document.getElementById("book-author").value;
-    numPages = Number(document.getElementById("number-of-pages").value);
-    read = document.getElementById("read").value;
 
+form.addEventListener("submit", (event) => {
     addBookToLibrary();
-    event.preventDefault();
+    event.preventDefault(); // Prevent default form submission behavior
     dialog.close();
-
-    // console.log(bookLabel);
-    // console.log(bookAuthor);
-    // console.log(numPages);
-    // console.log(read);
 });
 
 
-
-
-
-function displayBook (){
-    libraryDiv = document.getElementById("library");
-    let i = 0;
-    while (i < myLibrary.length) {
-        // console.log(myLibrary[i]);
-        book = document.createElement("div");
-        book.className = "book";
-
-        let titleDiv = document.createElement("div");
-        titleDiv.textContent = "Title: " + myLibrary[i].title;
-
-        let authorDiv = document.createElement("div");
-        authorDiv.textContent = "Author: " + myLibrary[i].author;
-
-        let pageDiv = document.createElement("div");
-        pageDiv.textContent = "Page Number: " + myLibrary[i].pageNumber;
-
-        let readDiv = document.createElement("div");
-        readDiv.textContent = "Read: " + (myLibrary[i].read ? "Yes" : "No");
-
-
-        book.appendChild(titleDiv);
-        book.appendChild(authorDiv);
-        book.appendChild(pageDiv);
-        book.appendChild(readDiv);
-
-        libraryDiv.appendChild(book);
-
-        i++;
-    };
-
+Book.prototype.readBook = function() {
+    console.log("Book being read:", this.title);
+    if (this.read.toLowerCase() === "yes") {
+        console.log("Book already read");
+    } else {
+        this.read = "Yes";
+        console.log("Book marked as read");
+        displayLibrary();
+    }
 };
 
-// displayBook();
+
+
+function displayBook(newBook) {
+    libraryDiv = document.getElementById("library");
+    book = document.createElement("div");
+    book.className = "book";
+
+    let titleDiv = document.createElement("div");
+    titleDiv.textContent = "Title: " + newBook.title;
+
+    let authorDiv = document.createElement("div");
+    authorDiv.textContent = "Author: " + newBook.author;
+
+    let pageDiv = document.createElement("div");
+    pageDiv.textContent = "Page Number: " + newBook.pages;
+
+    let readDiv = document.createElement("div");
+    readDiv.textContent = "Read: " + newBook.read;
+
+    removeBookBtn = document.createElement("button");
+    removeBookBtn.textContent = "Remove";
+
+    readBookBtn = document.createElement('button');
+    readBookBtn.textContent = "Read";
+
+    removeBookBtn.addEventListener('click', () => {
+        removeBook(newBook);
+    });
+
+    readBookBtn.addEventListener('click', function() {
+        newBook.readBook();
+    });
+    
+    book.appendChild(titleDiv);
+    book.appendChild(authorDiv);
+    book.appendChild(pageDiv);
+    book.appendChild(readDiv);
+    book.appendChild(removeBookBtn);
+    book.appendChild(readBookBtn)
+
+    libraryDiv.appendChild(book);
+}
+
+
+function displayLibrary() {
+    libraryDiv.innerHTML = ""; // Clear the library display
+    myLibrary.forEach(displayBook);
+}
+
+
+function removeBook(book) {
+    const index = myLibrary.indexOf(book);
+    if (index !== -1) {
+        myLibrary.splice(index, 1);
+        displayLibrary();
+    }
+}
+
+
+
